@@ -2,9 +2,8 @@ import React, { useState, useEffect } from 'react';
 import SidebarClerk from '../../components/SidebarClerk';
 import Navbar from '../../components/Navbar';
 import DashboardCard from '../../components/DashboardCard';
-import TodaysSalesCard from '../../components/TodaysSalesCard'; // Import the new component
 import { Link } from 'react-router-dom';
-import { Receipt, AlertCircle } from 'lucide-react';
+import { TrendingUp, Receipt, AlertCircle } from 'lucide-react';
 import api from '../../services/api';
 
 const ClerkDashboard = () => {
@@ -103,9 +102,11 @@ const ClerkDashboard = () => {
             {/* Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <Link to="/dashboard/clerk/sales" className="block overflow-hidden">
-                <TodaysSalesCard // Using the specialized component
+                <DashboardCard
                   title="Today's Sales"
                   value={`₹${summary.todaysSales.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                  icon={TrendingUp}
+                  color="emerald"
                 />
               </Link>
               <Link to="/dashboard/clerk/history" className="block overflow-hidden">

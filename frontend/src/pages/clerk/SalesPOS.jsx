@@ -158,6 +158,11 @@ const SalesPOS = () => {
       
       // Refresh product data to reflect updated stock levels
       await fetchProducts();
+      
+      // Dispatch a custom event to notify dashboards of the new sale
+      window.dispatchEvent(new CustomEvent('saleCreated', {
+        detail: { sale: response.data }
+      }));
     } catch (error) {
       console.error('Error processing sale:', error);
       alert('Failed to process sale. Please try again.');

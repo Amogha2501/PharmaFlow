@@ -51,7 +51,25 @@ const AdminDashboard = () => {
       }
     };
 
+    // Handler for sale created event
+    const handleSaleCreated = () => {
+      // Refresh data immediately when a sale is created
+      fetchData();
+    };
+
     fetchData();
+    
+    // Set up interval to refresh data every 30 seconds
+    const intervalId = setInterval(fetchData, 30000);
+    
+    // Listen for sale created events
+    window.addEventListener('saleCreated', handleSaleCreated);
+    
+    // Clean up interval and event listener on component unmount
+    return () => {
+      clearInterval(intervalId);
+      window.removeEventListener('saleCreated', handleSaleCreated);
+    };
   }, []);
 
   // Format time ago

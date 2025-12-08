@@ -169,7 +169,9 @@ const InventoryView = () => {
                             </td>
                             <td className="px-6 py-4 text-right text-emerald-900 font-semibold">₹{parseFloat(product.price).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                             <td className="px-6 py-4 text-right text-emerald-700">{product.quantity}</td>
-                            <td className="px-6 py-4 text-emerald-700">{product.supplier}</td>
+                            <td className="px-6 py-4 text-emerald-700">
+                              {product.supplier_name || product.supplier || 'N/A'}
+                            </td>
                             <td className="px-6 py-4 text-emerald-700">{product.expiry_date ? product.expiry_date.split('T')[0] : (product.expiryDate ? product.expiryDate.split('T')[0] : 'N/A')}</td>
                             <td className="px-6 py-4 text-center">
                               <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStockColorClass(stockInfo.color)}`}>

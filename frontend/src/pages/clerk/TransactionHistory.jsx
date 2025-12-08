@@ -22,15 +22,15 @@ const TransactionHistory = () => {
 
   const fetchTransactions = async () => {
     try {
-      // Use the clerk-specific endpoint for transaction history
-      const response = await api.get('/reports/clerk-recent-transactions');
+      // Use the new clerk-specific endpoint for all transaction history
+      const response = await api.get('/sales/me?page=1&limit=100');
       
       // Transform the data to match the expected structure
-      const transformedTransactions = response.data.map(transaction => ({
-        id: transaction.sale_id,
-        date: transaction.created_at,
-        paymentMethod: 'Cash', // We don't have this info in the current endpoint
-        totalAmount: transaction.total_amount,
+      const transformedTransactions = response.data.sales.map(sale => ({
+        id: sale.id,
+        date: sale.created_at,
+        paymentMethod: sale.payment_method,
+        totalAmount: sale.total_amount,
         status: 'Completed' // All transactions are completed
       }));
       
@@ -203,16 +203,16 @@ const TransactionHistory = () => {
                 <div className="grid grid-cols-2 gap-4 mb-6">
                   <div>
                     <p className="text-sm text-emerald-700">Date</p>
-                    <p className="font-medium">{new Date(selectedInvoice.date).toLocaleDateString()}</p>
+                    <p className="font-medium">{selectedInvoice && selectedInvoice.created_at ? new Date(selectedInvoice.created_at).toLocaleDateString() : 'N/A'}</p>
                   </div>
                   <div>
                     <p className="text-sm text-emerald-700">Payment Method</p>
-                    <p className="font-medium">{selectedInvoice.paymentMethod}</p>
+                    <p className="font-medium">{selectedInvoice && selectedInvoice.payment_method ? selectedInvoice.payment_method : 'N/A'}</p>
                   </div>
                   <div>
                     <p className="text-sm text-emerald-700">Status</p>
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
-                      {selectedInvoice.status}
+                      {selectedInvoice && selectedInvoice.status ? selectedInvoice.status : 'Completed'}
                     </span>
                   </div>
                 </div>
@@ -228,14 +228,22 @@ const TransactionHistory = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-emerald-100">
-                      {selectedInvoice.items.map((item, index) => (
-                        <tr key={index}>
-                          <td className="px-4 py-2 text-emerald-900">{item.name}</td>
-                          <td className="px-4 py-2 text-right text-emerald-700">{item.quantity}</td>
-                          <td className="px-4 py-2 text-right text-emerald-700">₹{parseFloat(item.price).toFixed(2)}</td>
-                          <td className="px-4 py-2 text-right text-emerald-900 font-medium">₹{(item.quantity * item.price).toFixed(2)}</td>
+                      {selectedInvoice && selectedInvoice.items && selectedInvoice.items.length > 0 ? (
+                        selectedInvoice.items.map((item, index) => (
+                          <tr key={index}>
+                            <td className="px-4 py-2 text-emerald-900">{item.name || item.product_name || 'Unknown Product'}</td>
+                            <td className="px-4 py-2 text-right text-emerald-700">{item.quantity || 0}</td>
+                            <td className="px-4 py-2 text-right text-emerald-700">₹{parseFloat(item.price || 0).toFixed(2)}</td>
+                            <td className="px-4 py-2 text-right text-emerald-900 font-medium">₹{parseFloat(item.total || (item.quantity * item.price) || 0).toFixed(2)}</td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan="4" className="px-4 py-2 text-center text-emerald-700">
+                            No items found
+                          </td>
                         </tr>
-                      ))}
+                      )}
                     </tbody>
                   </table>
                 </div>
@@ -244,15 +252,15 @@ const TransactionHistory = () => {
                   <div className="w-64">
                     <div className="flex justify-between py-1">
                       <span className="text-emerald-700">Subtotal:</span>
-                      <span className="font-medium">₹{parseFloat(selectedInvoice.subtotal).toFixed(2)}</span>
+                      <span className="font-medium">₹{parseFloat(selectedInvoice && selectedInvoice.subtotal ? selectedInvoice.subtotal : 0).toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between py-1">
                       <span className="text-emerald-700">Tax:</span>
-                      <span className="font-medium">₹{parseFloat(selectedInvoice.tax).toFixed(2)}</span>
+                      <span className="font-medium">₹{parseFloat(selectedInvoice && selectedInvoice.tax ? selectedInvoice.tax : 0).toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between py-1 border-t border-emerald-200 mt-2 pt-2">
                       <span className="text-emerald-900 font-bold">Total:</span>
-                      <span className="text-emerald-900 font-bold">₹{parseFloat(selectedInvoice.totalAmount).toFixed(2)}</span>
+                      <span className="text-emerald-900 font-bold">₹{parseFloat(selectedInvoice && selectedInvoice.totalAmount ? selectedInvoice.totalAmount : (selectedInvoice && selectedInvoice.total_amount ? selectedInvoice.total_amount : 0)).toFixed(2)}</span>
                     </div>
                   </div>
                 </div>

@@ -61,11 +61,20 @@ const Reports = () => {
       
       // Fetch expiry data from real API
       const expiryResponse = await api.get('/reports/expiry-alerts');
-      // Ensure we have an array
-      const expiryDataArray = Array.isArray(expiryResponse.data) ? expiryResponse.data : 
-                            (expiryResponse.data ? [expiryResponse.data] : []);
-      console.log('Expiry data:', expiryDataArray);
-      setExpiryData(expiryDataArray);
+      // Handle the response format (object with products property)
+      const allExpiryData = expiryResponse.data.products || 
+                            (Array.isArray(expiryResponse.data) ? expiryResponse.data : 
+                            (expiryResponse.data ? [expiryResponse.data] : []));
+      
+      // Filter to show only expired and near-expiry products for alerts
+      const expiryAlertsData = Array.isArray(allExpiryData) 
+        ? allExpiryData.filter(product => 
+            product.status === 'expired' || product.status === 'near-expiry'
+          )
+        : [];
+      
+      console.log('Expiry alerts data:', expiryAlertsData);
+      setExpiryData(expiryAlertsData);
       
       // Fetch suppliers for low stock table
       const suppliersResponse = await api.get('/suppliers?page=1&limit=100');
@@ -245,7 +254,7 @@ const Reports = () => {
                             <td className="px-6 py-4 text-emerald-900 font-medium">{item.name}</td>
                             <td className="px-6 py-4 text-red-600 font-semibold">{item.quantity}</td>
                             <td className="px-6 py-4 text-emerald-700">{item.reorder_level}</td>
-                            <td className="px-6 py-4 text-emerald-700">{suppliers.find(s => s.id == item.supplier_id)?.name || 'N/A'}</td>
+                            <td className="px-6 py-4 text-emerald-700">{item.supplier_name || 'N/A'}</td>
                           </tr>
                         ))
                       ) : (

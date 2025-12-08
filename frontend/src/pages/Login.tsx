@@ -147,25 +147,6 @@ export default function Login() {
             </p>
           </div>
 
-          <div className="mt-6 text-center">
-            <p className="text-emerald-200 text-sm font-medium">Demo Credentials:</p>
-            <div className="mt-4 grid grid-cols-1 gap-3 text-sm">
-              <div className="flex justify-between items-center bg-white/10 p-4 rounded-xl border border-white/10 backdrop-blur-sm">
-                <div className="flex items-center gap-2">
-                  <Users className="w-4 h-4 text-emerald-300" />
-                  <span className="text-emerald-100 font-medium">Admin:</span>
-                </div>
-                <span className="text-emerald-200 font-mono">admin@pharmacy.com / password123</span>
-              </div>
-              <div className="flex justify-between items-center bg-white/10 p-4 rounded-xl border border-white/10 backdrop-blur-sm">
-                <div className="flex items-center gap-2">
-                  <Users className="w-4 h-4 text-emerald-300" />
-                  <span className="text-emerald-100 font-medium">Clerk:</span>
-                </div>
-                <span className="text-emerald-200 font-mono">clerk@pharmacy.com / password123</span>
-              </div>
-            </div>
-          </div>
         </div>
         
         <div className="mt-8 text-center">

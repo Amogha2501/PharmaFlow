@@ -10,7 +10,12 @@ const ExpiryReports = () => {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all'); 
-  const [sortBy, setSortBy] = useState('expiryDate'); 
+  const [sortBy, setSortBy] = useState('expiryDate');
+  const [summaryData, setSummaryData] = useState({
+    totalProducts: 0,
+    expired: 0,
+    nearExpiry: 0,
+  });
 
   useEffect(() => {
     fetchExpiryData();
@@ -30,7 +35,8 @@ const ExpiryReports = () => {
     try {
       // Fetch real data from the API
       const response = await api.get('/reports/expiry-alerts');
-      const productData = response.data;
+      const productData = response.data.products;
+      const totalProductsCount = response.data.totalProducts;
       
       // Add daysToExpiry calculation
       const productsWithExpiry = productData.map(product => {
@@ -55,6 +61,16 @@ const ExpiryReports = () => {
       
       setProducts(productsWithExpiry);
       setFilteredProducts(productsWithExpiry);
+      
+      // Calculate summary data
+      const expiredCount = productsWithExpiry.filter(p => p.status === 'expired').length;
+      const nearExpiryCount = productsWithExpiry.filter(p => p.status === 'near-expiry').length;
+      
+      setSummaryData({
+        totalProducts: totalProductsCount,
+        expired: expiredCount,
+        nearExpiry: nearExpiryCount,
+      });
     } catch (error) {
       console.error('Error fetching expiry data:', error);
     } finally {
@@ -108,12 +124,6 @@ const ExpiryReports = () => {
       case 'near-expiry': return <AlertTriangle className="w-4 h-4" />;
       default: return <Clock className="w-4 h-4" />;
     }
-  };
-
-  const summaryData = {
-    totalProducts: products.length,
-    expired: products.filter(p => p.status === 'expired').length,
-    nearExpiry: products.filter(p => p.status === 'near-expiry').length,
   };
 
   if (loading) {
@@ -193,6 +203,10 @@ const ExpiryReports = () => {
                 <div className="flex items-center">
                   <div className="p-3 bg-green-100 rounded-lg mr-4">
                     <CheckCircle className="w-6 h-6 text-green-600" />
+                  </div>
+                  <div>
+                    <p className="text-emerald-700 text-sm font-medium">Active Products</p>
+                    <p className="text-2xl font-bold text-green-600">{summaryData.totalProducts - summaryData.expired - summaryData.nearExpiry}</p>
                   </div>
                 </div>
               </div>

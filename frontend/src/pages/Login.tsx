@@ -139,6 +139,16 @@ export default function Login() {
           </form>
 
           <div className="mt-8 pt-6 border-t border-white/10">
+            <div className="mb-6 bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4 backdrop-blur-sm">
+              <h3 className="text-emerald-200 font-semibold mb-2 flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4" />
+                Demo Credentials
+              </h3>
+              <div className="text-emerald-100 text-sm space-y-1">
+                <p><strong>Admin:</strong> admin@pharmacy.com / password123</p>
+                <p><strong>Clerk:</strong> clerk@pharmacy.com / password123</p>
+              </div>
+            </div>
             <p className="text-emerald-200 text-center text-sm">
               Forgot your password?{" "}
               <Link to="#" className="text-emerald-100 hover:text-white font-medium transition-colors underline">

@@ -145,7 +145,6 @@ const toggleUserStatus = async (req, res) => {
     const newStatus = existingUser.status === 'active' ? 'inactive' : 'active';
     
     const affectedRows = await User.update(id, {
-      ...existingUser,
       status: newStatus
     });
     

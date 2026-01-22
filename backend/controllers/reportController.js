@@ -3,9 +3,9 @@ const Report = require('../models/reportModel');
 // Get report summary
 const getSummary = async (req, res) => {
   try {
-    // Get total sales revenue
+    // Get total sales revenue for today
     const [salesRevenueResult] = await require('../config/db').execute(
-      'SELECT COALESCE(SUM(total_amount), 0) as total FROM sale'
+      'SELECT COALESCE(SUM(total_amount), 0) as total FROM sale WHERE DATE(created_at) = CURDATE()'
     );
     
     // Get total products count
@@ -85,19 +85,28 @@ const getSalesByClerk = async (req, res) => {
 // Get expiry alerts
 const getExpiryAlerts = async (req, res) => {
   try {
-    const [rows] = await require('../config/db').execute(
-      `SELECT id, name, expiry_date, 
+    // Get ALL products with supplier information and expiry status
+    const [allProducts] = await require('../config/db').execute(
+      `SELECT p.id, p.name, p.expiry_date, s.name as supplier,
        CASE 
-         WHEN expiry_date < CURDATE() THEN 'expired'
-         WHEN expiry_date <= DATE_ADD(CURDATE(), INTERVAL 7 DAY) THEN 'critical'
-         WHEN expiry_date <= DATE_ADD(CURDATE(), INTERVAL 30 DAY) THEN 'warning'
-         ELSE 'safe'
+         WHEN p.expiry_date < CURDATE() THEN 'expired'
+         WHEN p.expiry_date <= DATE_ADD(CURDATE(), INTERVAL 30 DAY) THEN 'near-expiry'
+         ELSE 'active'
        END as status
-       FROM product 
-       WHERE expiry_date < CURDATE() OR (expiry_date <= DATE_ADD(CURDATE(), INTERVAL 30 DAY) AND expiry_date >= CURDATE())
-       ORDER BY expiry_date ASC`
+       FROM product p
+       LEFT JOIN supplier s ON p.supplier_id = s.id
+       ORDER BY p.expiry_date ASC`
     );
-    res.json(rows);
+    
+    // Get total product count
+    const [totalCountResult] = await require('../config/db').execute(
+      'SELECT COUNT(*) as total FROM product'
+    );
+    
+    res.json({
+      products: allProducts,
+      totalProducts: totalCountResult[0].total
+    });
   } catch (error) {
     console.error('Error fetching expiry alerts:', error);
     res.status(500).json({ message: 'Server error while fetching expiry alerts' });
@@ -170,6 +179,34 @@ const getClerkRecentTransactions = async (req, res) => {
   }
 };
 
+// Update resolved status of low stock alert
+const updateLowStockAlert = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { resolved } = req.body;
+    
+    // Validate input
+    if (resolved === undefined) {
+      return res.status(400).json({ message: 'Resolved status is required' });
+    }
+    
+    // Update the resolved status in the database
+    const [result] = await require('../config/db').execute(
+      'UPDATE low_stock_alert SET resolved = ? WHERE id = ?',
+      [resolved, id]
+    );
+    
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Low stock alert not found' });
+    }
+    
+    res.json({ message: 'Low stock alert updated successfully' });
+  } catch (error) {
+    console.error('Error updating low stock alert:', error);
+    res.status(500).json({ message: 'Server error while updating low stock alert' });
+  }
+};
+
 module.exports = {
   getSummary,
   getDailySales,
@@ -179,5 +216,6 @@ module.exports = {
   getExpiryAlerts,
   getRecentActivities,
   getClerkSummary,
-  getClerkRecentTransactions
+  getClerkRecentTransactions,
+  updateLowStockAlert
 };

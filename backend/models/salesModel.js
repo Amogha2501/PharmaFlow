@@ -31,6 +31,21 @@ class Sale {
     );
     return rows[0];
   }
+
+  static async findByUserId(userId, page = 1, limit = 10) {
+    const offset = (page - 1) * limit;
+    const [rows] = await db.execute(
+      `SELECT s.*, u.name as clerk_name FROM sale s JOIN user_account u ON s.user_id = u.id WHERE s.user_id = ? ORDER BY s.created_at DESC LIMIT ${parseInt(limit)} OFFSET ${parseInt(offset)}`,
+      [userId]
+    );
+    const [countResult] = await db.execute('SELECT COUNT(*) as total FROM sale WHERE user_id = ?', [userId]);
+    return {
+      sales: rows,
+      total: countResult[0].total,
+      page,
+      totalPages: Math.ceil(countResult[0].total / limit)
+    };
+  }
 }
 
 module.exports = Sale;

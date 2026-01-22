@@ -14,7 +14,11 @@ class Report {
 
   static async getLowStockAlerts() {
     const [rows] = await db.execute(
-      'SELECT * FROM product WHERE quantity <= reorder_level'
+      `SELECT p.*, s.name as supplier_name, lsa.id as alert_id, lsa.resolved as alert_resolved
+       FROM product p 
+       LEFT JOIN supplier s ON p.supplier_id = s.id
+       LEFT JOIN low_stock_alert lsa ON p.id = lsa.product_id
+       WHERE p.quantity <= p.reorder_level`
     );
     return rows;
   }
@@ -66,29 +70,32 @@ class Report {
   
   static async getRecentActivities(limit = 5) {
     // First check if there are any sales
-    const [countResult] = await db.execute('SELECT COUNT(*) as count FROM sale');
+    const [countResult] = await db.execute('SELECT COUNT(*) as count FROM sale WHERE DATE(created_at) = CURDATE()');
     if (countResult[0].count === 0) {
       return [];
     }
     
+    const limitNum = parseInt(limit);
     const [rows] = await db.execute(
       `SELECT s.id as sale_id, s.total_amount, s.created_at, u.name as clerk_name
        FROM sale s
        LEFT JOIN user_account u ON s.user_id = u.id
+       WHERE DATE(s.created_at) = CURDATE()
        ORDER BY s.created_at DESC
-       LIMIT 5`
+       LIMIT ${limitNum}`
     );
     return rows;
   }
   
   // Get recent transactions for a specific clerk
   static async getClerkRecentTransactions(userId, limit = 5) {
+    const limitNum = parseInt(limit);
     const [rows] = await db.execute(
       `SELECT s.id as sale_id, s.total_amount, s.created_at
        FROM sale s
-       WHERE s.user_id = ?
+       WHERE s.user_id = ? AND DATE(s.created_at) = CURDATE()
        ORDER BY s.created_at DESC
-       LIMIT ${parseInt(limit)}`,
+       LIMIT ${limitNum}`,
       [userId]
     );
     return rows;

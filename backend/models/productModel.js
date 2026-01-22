@@ -18,7 +18,7 @@ class Product {
     
     // Using string interpolation for LIMIT and OFFSET to avoid parameter binding issues
     const [rows] = await db.execute(
-      `SELECT * FROM product ORDER BY id ASC LIMIT ${limitNum} OFFSET ${offset}`
+      `SELECT p.*, s.name as supplier_name FROM product p LEFT JOIN supplier s ON p.supplier_id = s.id ORDER BY p.id ASC LIMIT ${limitNum} OFFSET ${offset}`
     );
     const [countResult] = await db.execute('SELECT COUNT(*) as total FROM product');
     
@@ -37,7 +37,7 @@ class Product {
 
   static async findById(id) {
     const [rows] = await db.execute(
-      'SELECT * FROM product WHERE id = ?',
+      'SELECT p.*, s.name as supplier_name FROM product p LEFT JOIN supplier s ON p.supplier_id = s.id WHERE p.id = ?',
       [id]
     );
     return rows[0];
@@ -75,7 +75,7 @@ class Product {
 
   static async search(query) {
     const [rows] = await db.execute(
-      'SELECT * FROM product WHERE name LIKE ? OR id LIKE ?',
+      'SELECT p.*, s.name as supplier_name FROM product p LEFT JOIN supplier s ON p.supplier_id = s.id WHERE p.name LIKE ? OR p.id LIKE ?',
       [`%${query}%`, `%${query}%`]
     );
     return rows;

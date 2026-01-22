@@ -8,7 +8,8 @@ const {
   getExpiryAlerts,
   getRecentActivities,
   getClerkSummary,
-  getClerkRecentTransactions
+  getClerkRecentTransactions,
+  updateLowStockAlert
 } = require('../controllers/reportController');
 const authenticateToken = require('../middleware/authMiddleware');
 const { checkRole } = require('../middleware/roleMiddleware');
@@ -23,6 +24,7 @@ router.get('/sales-by-clerk', authenticateToken, checkRole(['admin']), getSalesB
 router.get('/product-wise-revenue', authenticateToken, checkRole(['admin']), getProductWiseRevenue);
 router.get('/expiry-alerts', authenticateToken, checkRole(['admin']), getExpiryAlerts);
 router.get('/recent-activities', authenticateToken, checkRole(['admin']), getRecentActivities);
+router.put('/low-stock-alert/:id', authenticateToken, checkRole(['admin']), updateLowStockAlert);
 
 // Clerk reports
 router.get('/clerk-summary', authenticateToken, checkRole(['clerk', 'admin']), getClerkSummary);

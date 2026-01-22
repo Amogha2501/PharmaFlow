@@ -16,6 +16,21 @@ const getAllSales = async (req, res) => {
   }
 };
 
+// Get sales for a specific clerk with pagination
+const getClerkSales = async (req, res) => {
+  try {
+    const userId = req.user.id; // From auth middleware
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    
+    const result = await Sale.findByUserId(userId, page, limit);
+    res.json(result);
+  } catch (error) {
+    console.error('Error fetching clerk sales:', error);
+    res.status(500).json({ message: 'Server error while fetching sales' });
+  }
+};
+
 // Get sale by ID
 const getSaleById = async (req, res) => {
   try {
@@ -29,9 +44,25 @@ const getSaleById = async (req, res) => {
     // Get sale items
     const items = await SaleItem.findBySaleId(id);
     
+    // Calculate subtotal and tax
+    const subtotal = items.reduce((sum, item) => sum + (item.quantity * item.price), 0);
+    const tax = subtotal * 0.08; // 8% tax
+    const totalAmount = subtotal + tax;
+    
+    // Transform items to match frontend expectations
+    const transformedItems = items.map(item => ({
+      name: item.product_name,
+      quantity: item.quantity,
+      price: item.price,
+      total: item.quantity * item.price
+    }));
+    
     res.json({
       ...sale,
-      items
+      items: transformedItems,
+      subtotal: subtotal,
+      tax: tax,
+      totalAmount: totalAmount
     });
   } catch (error) {
     console.error('Error fetching sale:', error);
@@ -111,5 +142,6 @@ const createSale = async (req, res) => {
 module.exports = {
   getAllSales,
   getSaleById,
-  createSale
+  createSale,
+  getClerkSales
 };

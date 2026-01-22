@@ -15,6 +15,9 @@ const Suppliers = () => {
     email: '',
     phone: '',
     address: '',
+    city: '',
+    country: '',
+    paymentTerms: '',
     products: []
   });
 
@@ -53,6 +56,9 @@ const Suppliers = () => {
       email: '',
       phone: '',
       address: '',
+      city: '',
+      country: '',
+      paymentTerms: '',
       products: []
     });
     setShowModal(true);
@@ -71,6 +77,9 @@ const Suppliers = () => {
         email: detailedSupplier.email,
         phone: detailedSupplier.phone,
         address: detailedSupplier.address,
+        city: detailedSupplier.city || '',
+        country: detailedSupplier.country || '',
+        paymentTerms: detailedSupplier.payment_terms || '',
         products: productsArray
       });
       setShowModal(true);
@@ -83,6 +92,9 @@ const Suppliers = () => {
         email: supplier.email,
         phone: supplier.phone,
         address: supplier.address,
+        city: supplier.city || '',
+        country: supplier.country || '',
+        paymentTerms: supplier.payment_terms || '',
         products: Array.isArray(supplier.products) ? supplier.products : []
       });
       setShowModal(true);
@@ -327,6 +339,18 @@ const Suppliers = () => {
                   </div>
                   
                   <div>
+                    <label className="block text-sm font-medium text-emerald-800 mb-1">City</label>
+                    <input
+                      type="text"
+                      name="city"
+                      value={formData.city}
+                      onChange={handleFormChange}
+                      className="w-full px-3 py-2 border border-emerald-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
                     <label className="block text-sm font-medium text-emerald-800 mb-1">Address</label>
                     <input
                       type="text"
@@ -334,6 +358,31 @@ const Suppliers = () => {
                       value={formData.address}
                       onChange={handleFormChange}
                       className="w-full px-3 py-2 border border-emerald-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-emerald-800 mb-1">Country</label>
+                    <input
+                      type="text"
+                      name="country"
+                      value={formData.country}
+                      onChange={handleFormChange}
+                      className="w-full px-3 py-2 border border-emerald-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-emerald-800 mb-1">Payment Terms</label>
+                    <input
+                      type="text"
+                      name="paymentTerms"
+                      value={formData.paymentTerms}
+                      onChange={handleFormChange}
+                      className="w-full px-3 py-2 border border-emerald-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      placeholder="e.g., Net 30, Cash on Delivery"
                       required
                     />
                   </div>
